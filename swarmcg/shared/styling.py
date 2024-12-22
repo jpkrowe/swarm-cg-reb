@@ -22,6 +22,7 @@ def header_package(module_line):
 {sep_close}
 |                 Swarm-CG is distributed under the terms of the MIT License.                 |
 |                                                                                             |
+                            Edited version with Restricted bending potential                  |
 |                    Feedback, questions and bug reports are welcome at:                      |
 |                        {config.github_url}/issues                          |
 |                                                                                             |
