@@ -1,3 +1,5 @@
+This is a modified version of swarm-cg, allowing the use of the restricted bending potential, which is commonly used in coarse-grained models such as martini.
+
 # Swarm-CG
 
 Swarm-CG is designed for automatically optimizing the bonded terms of a MARTINI-based coarse-grained (CG) molecular model, in explicit or implicit solvent, with respect to a reference all-atom (AA) trajectory and starting from a preliminary CG model (topology and non-bonded parameters). The package is designed for usage with Gromacs and contains 3 modules for:
