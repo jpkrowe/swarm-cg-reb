@@ -1,4 +1,4 @@
-This is a modified version of swarm-cg, allowing the use of the restricted bending potential, which is commonly used in coarse-grained models such as martini.
+This is a modified version of swarm-cg, allowing the use of the restricted bending potential, which is commonly used in coarse-grained models such as martini. Note this package is based on the version of swarm-cg from pip and not the github version of the package. I found that there were several bugs with the version available on github.
 
 # Swarm-CG
 
