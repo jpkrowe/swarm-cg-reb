@@ -4,6 +4,7 @@ import numpy as np
 def gmx_bonds_func_1(x, a, b, c):
 	"""
 	Gromacs potential function 1 for bonds.
+	This function is also used for Gromacs potential function 6.
 	"""
 	return a / 2 * (x - b) ** 2 + c
 

@@ -53,7 +53,7 @@ fct_guess_min_flat_diff_dihedrals_with_mult = 1  # flat minimum force constant v
 #       this is the primary purpose of function 9 !!
 handled_functions = {
     'constraint': [1],  # tested and verified: 1
-    'bond': [1],  # tested and verified: 1
+    'bond': [1, 6],  # tested and verified: 1
     'angle': [1, 2, 10],  # tested and verified: 1, 2 -- ongoing: 10 - added jpkrowe
     'dihedral': [1, 2, 4],  # tested and verified: 1, 2, 4 -- ongoing: 9 (need to merge the 1+ dihedrals groups on plots)
     'virtual_sites2': [1],  # tested and verified: 1 -- ongoing: 2 (need GMX 2020)
