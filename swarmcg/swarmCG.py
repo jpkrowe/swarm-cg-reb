@@ -299,13 +299,12 @@ def read_cg_itp_file(ns):
 					# beginning of a new group
 					if itp_lines[i-1] == '' or itp_lines[i-1].startswith(';') or bool(re.search('\[.*constraint.*\]', itp_lines[i-1])):
 						ns.nb_constraints += 1
-						if raw_itp_lines[i-1].strip().startswith('; constraint type'):
-							parts = raw_itp_lines[i-1].strip().split()
-							geom_type = parts[3]  # if the current CG ITP was generated with our package
-							fixed = len(parts) > 4 and parts[4].upper() == 'FIXED'
+						raw_prev = raw_itp_lines[i-1].strip()
+						if raw_prev.startswith('; constraint type'):
+							geom_type = raw_prev.split()[3]  # if the current CG ITP was generated with our package
 						else:
 							geom_type = str(len(ns.cg_itp['constraint'])+1)
-							fixed = False
+						fixed = raw_prev.startswith(';') and 'FIXED' in raw_prev.upper().split()
 						ns.cg_itp['constraint'].append({'geom_type': geom_type, 'fixed': fixed, 'beads': [], 'func': [], 'value': [], 'value_user': []})  # initialize storage for this new group
 
 					try:
@@ -327,13 +326,12 @@ def read_cg_itp_file(ns):
 					# beginning of a new group
 					if itp_lines[i-1] == '' or itp_lines[i-1].startswith(';') or bool(re.search('\[.*bond.*\]', itp_lines[i-1])):
 						ns.nb_bonds += 1
-						if raw_itp_lines[i-1].strip().startswith('; bond type'):
-							parts = raw_itp_lines[i-1].strip().split()
-							geom_type = parts[3]  # if the current CG ITP was generated with our package
-							fixed = len(parts) > 4 and parts[4].upper() == 'FIXED'
+						raw_prev = raw_itp_lines[i-1].strip()
+						if raw_prev.startswith('; bond type'):
+							geom_type = raw_prev.split()[3]  # if the current CG ITP was generated with our package
 						else:
 							geom_type = str(len(ns.cg_itp['bond'])+1)
-							fixed = False
+						fixed = raw_prev.startswith(';') and 'FIXED' in raw_prev.upper().split()
 						ns.cg_itp['bond'].append({'geom_type': geom_type, 'fixed': fixed, 'beads': [], 'func': [], 'value': [], 'value_user': [], 'fct': [], 'fct_user': []})  # initialize storage for this new group
 
 					try:
@@ -360,13 +358,12 @@ def read_cg_itp_file(ns):
 					# beginning of a new group
 					if itp_lines[i-1] == '' or itp_lines[i-1].startswith(';') or bool(re.search('\[.*angle.*\]', itp_lines[i-1])):
 						ns.nb_angles += 1
-						if raw_itp_lines[i-1].strip().startswith('; angle type'):
-							parts = raw_itp_lines[i-1].strip().split()
-							geom_type = parts[3]  # if the current CG ITP was generated with our package
-							fixed = len(parts) > 4 and parts[4].upper() == 'FIXED'
+						raw_prev = raw_itp_lines[i-1].strip()
+						if raw_prev.startswith('; angle type'):
+							geom_type = raw_prev.split()[3]  # if the current CG ITP was generated with our package
 						else:
 							geom_type = str(len(ns.cg_itp['angle'])+1)
-							fixed = False
+						fixed = raw_prev.startswith(';') and 'FIXED' in raw_prev.upper().split()
 						ns.cg_itp['angle'].append({'geom_type': geom_type, 'fixed': fixed, 'beads': [], 'func': [], 'value': [], 'value_user': [], 'fct': [], 'fct_user': []})  # initialize storage for this new group
 
 					try:
@@ -398,13 +395,12 @@ def read_cg_itp_file(ns):
 					# beginning of a new group
 					if itp_lines[i-1] == '' or itp_lines[i-1].startswith(';') or bool(re.search('\[.*dihedral.*\]', itp_lines[i-1])):
 						ns.nb_dihedrals += 1
-						if raw_itp_lines[i-1].strip().startswith('; dihedral type'):
-							parts = raw_itp_lines[i-1].strip().split()
-							geom_type = parts[3]  # if the current CG ITP was generated with our package
-							fixed = len(parts) > 4 and parts[4].upper() == 'FIXED'
+						raw_prev = raw_itp_lines[i-1].strip()
+						if raw_prev.startswith('; dihedral type'):
+							geom_type = raw_prev.split()[3]  # if the current CG ITP was generated with our package
 						else:
 							geom_type = str(len(ns.cg_itp['dihedral'])+1)
-							fixed = False
+						fixed = raw_prev.startswith(';') and 'FIXED' in raw_prev.upper().split()
 						ns.cg_itp['dihedral'].append({'geom_type': geom_type, 'fixed': fixed, 'beads': [], 'func': [], 'value': [], 'value_user': [], 'fct': [], 'fct_user': [], 'mult': []})  # initialize storage for this new group
 
 					try:
