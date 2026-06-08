@@ -215,6 +215,10 @@ def run(ns):
     scg.get_atoms_weights_in_beads(ns)  # get weights of atoms within beads
 
     scg.read_cg_itp_file(ns)  # load the ITP object and find out geoms grouping
+    ns.opti_constraint_ids = [i for i, g in enumerate(ns.cg_itp['constraint']) if not g.get('fixed', False)]
+    ns.opti_bond_ids = [i for i, g in enumerate(ns.cg_itp['bond']) if not g.get('fixed', False)]
+    ns.opti_angle_ids = [i for i, g in enumerate(ns.cg_itp['angle']) if not g.get('fixed', False)]
+    ns.opti_dihedral_ids = [i for i, g in enumerate(ns.cg_itp['dihedral']) if not g.get('fixed', False)]
     scg.process_scaling_str(ns)  # process the bonds scaling specified by user
 
     print()
@@ -403,9 +407,9 @@ def run(ns):
 
     # Startegy 5 -- Coupled to fewer particles
     # Settings: OPTIMAL / Should be fine with any type of molecule, big or small, as long as the BI keeps yielding close enough results, which should be the case
-    sim_types = {0: {'sim_duration': ns.sim_duration_short, 'max_swarm_iter': int(round(6+np.sqrt(ns.nb_constraints+ns.nb_bonds+ns.nb_angles))), 'max_swarm_iter_without_new_global_best': 6, 'val_guess_fact': 1, 'fct_guess_fact': 0.40},
-         1: {'sim_duration': ns.sim_duration_short, 'max_swarm_iter': int(round(6+np.sqrt(ns.nb_angles+ns.nb_dihedrals))), 'max_swarm_iter_without_new_global_best': 6, 'val_guess_fact': 0.25, 'fct_guess_fact': 0.30},
-         2: {'sim_duration': ns.sim_duration_long, 'max_swarm_iter': int(round(6+np.sqrt(ns.nb_constraints+ns.nb_bonds+ns.nb_angles+ns.nb_dihedrals))), 'max_swarm_iter_without_new_global_best': 6, 'val_guess_fact': 0.25, 'fct_guess_fact': 0.20}}
+    sim_types = {0: {'sim_duration': ns.sim_duration_short, 'max_swarm_iter': int(round(6+np.sqrt(len(ns.opti_constraint_ids)+len(ns.opti_bond_ids)+len(ns.opti_angle_ids)))), 'max_swarm_iter_without_new_global_best': 6, 'val_guess_fact': 1, 'fct_guess_fact': 0.40},
+         1: {'sim_duration': ns.sim_duration_short, 'max_swarm_iter': int(round(6+np.sqrt(len(ns.opti_angle_ids)+len(ns.opti_dihedral_ids)))), 'max_swarm_iter_without_new_global_best': 6, 'val_guess_fact': 0.25, 'fct_guess_fact': 0.30},
+         2: {'sim_duration': ns.sim_duration_long, 'max_swarm_iter': int(round(6+np.sqrt(len(ns.opti_constraint_ids)+len(ns.opti_bond_ids)+len(ns.opti_angle_ids)+len(ns.opti_dihedral_ids)))), 'max_swarm_iter_without_new_global_best': 6, 'val_guess_fact': 0.25, 'fct_guess_fact': 0.20}}
     # opti_cycles = [['constraint', 'bond', 'angle'], ['angle', 'dihedral'], ['constraint', 'bond', 'angle', 'dihedral']] # optimization cycles to perform with given geom objects
     opti_cycles = [['constraint', 'bond', 'angle'], ['angle', 'dihedral'], ['constraint', 'bond', 'angle', 'dihedral']]
     sim_cycles = [0, 1, 2]  # simulations types
@@ -483,14 +487,14 @@ def run(ns):
         if 'constraint' in ns.opti_cycle['geoms'] or 'bond' in ns.opti_cycle['geoms']:
           geoms_display.append('constraints/bonds')
         if 'constraint' in ns.opti_cycle['geoms']:
-          ns.opti_cycle['nb_geoms']['constraint'] = ns.nb_constraints
+          ns.opti_cycle['nb_geoms']['constraint'] = len(ns.opti_constraint_ids)
         if 'bond' in ns.opti_cycle['geoms']:
-          ns.opti_cycle['nb_geoms']['bond'] = ns.nb_bonds
+          ns.opti_cycle['nb_geoms']['bond'] = len(ns.opti_bond_ids)
         if 'angle' in ns.opti_cycle['geoms']:
-          ns.opti_cycle['nb_geoms']['angle'] = ns.nb_angles
+          ns.opti_cycle['nb_geoms']['angle'] = len(ns.opti_angle_ids)
           geoms_display.append('angles')
         if 'dihedral' in ns.opti_cycle['geoms']:
-          ns.opti_cycle['nb_geoms']['dihedral'] = ns.nb_dihedrals
+          ns.opti_cycle['nb_geoms']['dihedral'] = len(ns.opti_dihedral_ids)
           geoms_display.append('dihedrals')
         geoms_display = ' & '.join(geoms_display)
 
@@ -511,9 +515,9 @@ def run(ns):
 
         # ns.worst_fit_score = round(len(search_space_boundaries) * config.sim_crash_EMD_indep_score, 3)
         ns.worst_fit_score = round(\
-          np.sqrt((ns.nb_constraints+ns.nb_bonds) * config.sim_crash_EMD_indep_score) + \
-          np.sqrt(ns.nb_angles * config.sim_crash_EMD_indep_score) + \
-          np.sqrt(ns.nb_dihedrals * config.sim_crash_EMD_indep_score) \
+          np.sqrt((len(ns.opti_constraint_ids)+len(ns.opti_bond_ids)) * config.sim_crash_EMD_indep_score) + \
+          np.sqrt(len(ns.opti_angle_ids) * config.sim_crash_EMD_indep_score) + \
+          np.sqrt(len(ns.opti_dihedral_ids) * config.sim_crash_EMD_indep_score) \
           , 3)
         # nb_particles = int(10 + 2*np.sqrt(len(search_space_boundaries)))  # formula used by FST-PSO to choose nb of particles, which defines the number of initial guesses we can use
         nb_particles = int(round(2 + np.sqrt(len(search_space_boundaries))))  # adapted to have less particles and fitted to our problems, which has good initial guesses and error driven initialization
