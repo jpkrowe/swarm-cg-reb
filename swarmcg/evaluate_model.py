@@ -27,8 +27,7 @@ def run(ns):
 	print(swarmcg.shared.styling.sep_close)
 	print()
 
-	from numpy import VisibleDeprecationWarning
-	warnings.filterwarnings("ignore", category=VisibleDeprecationWarning)  # filter MDAnalysis + numpy deprecation stuff that is annoying
+	warnings.filterwarnings("ignore", category=DeprecationWarning)  # filter MDAnalysis + numpy deprecation stuff that is annoying
 
 	# TODO: make it possible to feed a delta/offset for Rg in case the model has bonds scaling ?
 

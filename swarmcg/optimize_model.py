@@ -20,8 +20,7 @@ warnings.resetwarnings()
 
 def run(ns):
 
-    from numpy import VisibleDeprecationWarning
-    warnings.filterwarnings("ignore", category=VisibleDeprecationWarning)  # filter MDAnalysis + numpy deprecation stuff that is annoying
+    warnings.filterwarnings("ignore", category=DeprecationWarning)  # filter MDAnalysis + numpy deprecation stuff that is annoying
     warnings.filterwarnings("ignore", category=ImportWarning)  # filter Matplotlib mpl_toolkits missing __init__ stuff
 
     # TODO: allow to feed a JSON file for cycles of optimization ?? this is more optional but useful for big stuff possibly
@@ -287,19 +286,21 @@ def run(ns):
     for grp_constraint in range(ns.nb_constraints):
 
         constraint_avg, constraint_hist, constraint_values = scg.get_AA_bonds_distrib(ns, beads_ids=ns.cg_itp['constraint'][grp_constraint]['beads'], grp_type='constraint group', grp_nb=grp_constraint)
-        if ns.exec_mode == 1:
+        if ns.exec_mode == 1 and not ns.cg_itp['constraint'][grp_constraint].get('fixed', False):
             ns.cg_itp['constraint'][grp_constraint]['value'] = constraint_avg
         ns.cg_itp['constraint'][grp_constraint]['avg'] = constraint_avg
         ns.cg_itp['constraint'][grp_constraint]['hist'] = constraint_hist
 
         ns.domains_val['constraint'].append([round(np.min(constraint_values), 3), round(np.max(constraint_values), 3)])  # boundaries of equilibrium values
-        print(f'  Constraint grp {grp_constraint+1} -- Average value: '+str(round(constraint_avg, 2))+' nm -- Initial equilibrium value: '+str(round(ns.cg_itp['constraint'][grp_constraint]['value'], 2))+' nm')
+        val = ns.cg_itp['constraint'][grp_constraint]['value']
+        val_str = '(mixed)' if isinstance(val, list) else str(round(val, 2)) + ' nm'
+        print(f'  Constraint grp {grp_constraint+1} -- Average value: {round(constraint_avg, 2)} nm -- Initial equilibrium value: {val_str}')
 
     # get ref atom hists + find very first distances and force constants guesses for bonds groups
     for grp_bond in range(ns.nb_bonds):
 
         bond_avg, bond_hist, bond_values = scg.get_AA_bonds_distrib(ns, beads_ids=ns.cg_itp['bond'][grp_bond]['beads'], grp_type='bond group', grp_nb=grp_bond)
-        if ns.exec_mode == 1:
+        if ns.exec_mode == 1 and not ns.cg_itp['bond'][grp_bond].get('fixed', False):
             ns.cg_itp['bond'][grp_bond]['value'] = bond_avg
         ns.cg_itp['bond'][grp_bond]['avg'] = bond_avg
         ns.cg_itp['bond'][grp_bond]['hist'] = bond_hist
@@ -309,13 +310,15 @@ def run(ns):
         ns.data_BI['bond'].append([np.histogram(bond_values, range=(xmin, xmax), bins=config.bi_nb_bins)[0], np.std(bond_values), np.mean(bond_values), (xmin, xmax)])
 
         ns.domains_val['bond'].append([round(np.min(bond_values), 3), round(np.max(bond_values), 3)])  # boundaries of equilibrium values
-        print(f'  Bond grp {grp_bond+1} -- Average value: '+str(round(bond_avg, 2))+' nm -- Initial equilibrium value: '+str(round(ns.cg_itp['bond'][grp_bond]['value'], 2))+' nm')
+        val = ns.cg_itp['bond'][grp_bond]['value']
+        val_str = '(mixed)' if isinstance(val, list) else str(round(val, 2)) + ' nm'
+        print(f'  Bond grp {grp_bond+1} -- Average value: {round(bond_avg, 2)} nm -- Initial equilibrium value: {val_str}')
 
     # get ref atom hists + find very first values and force constants guesses for angles groups
     for grp_angle in range(ns.nb_angles):
 
         angle_avg, angle_hist, angle_values_deg, angle_values_rad = scg.get_AA_angles_distrib(ns, beads_ids=ns.cg_itp['angle'][grp_angle]['beads'])
-        if ns.exec_mode == 1:
+        if ns.exec_mode == 1 and not ns.cg_itp['angle'][grp_angle].get('fixed', False):
             ns.cg_itp['angle'][grp_angle]['value'] = angle_avg
         ns.cg_itp['angle'][grp_angle]['avg'] = angle_avg
         ns.cg_itp['angle'][grp_angle]['hist'] = angle_hist
@@ -325,13 +328,15 @@ def run(ns):
         ns.data_BI['angle'].append([np.histogram(angle_values_rad, range=(np.deg2rad(xmin), np.deg2rad(xmax)), bins=config.bi_nb_bins)[0], np.std(angle_values_rad), (xmin, xmax)])
 
         ns.domains_val['angle'].append([round(np.min(angle_values_deg), 2), round(np.max(angle_values_deg), 2)])  # boundaries of equilibrium values
-        print(f'  Angle grp {grp_angle+1} -- Average value: ' + str(round(angle_avg, 2)) + ' degrees -- Initial equilibrium value: '+str(round(ns.cg_itp['angle'][grp_angle]['value'], 2))+' degrees')
+        val = ns.cg_itp['angle'][grp_angle]['value']
+        val_str = '(mixed)' if isinstance(val, list) else str(round(val, 2)) + ' degrees'
+        print(f'  Angle grp {grp_angle+1} -- Average value: {round(angle_avg, 2)} degrees -- Initial equilibrium value: {val_str}')
 
     # get ref atom hists + find very first values and force constants guesses for dihedrals groups
     for grp_dihedral in range(ns.nb_dihedrals):
 
         dihedral_avg, dihedral_hist, dihedral_values_deg, dihedral_values_rad = scg.get_AA_dihedrals_distrib(ns, beads_ids=ns.cg_itp['dihedral'][grp_dihedral]['beads'])
-        if ns.exec_mode == 1:  # the dihedral equi value will be calculated from the BI fit, because for dihedrals it makes no sense to use the average
+        if ns.exec_mode == 1 and not ns.cg_itp['dihedral'][grp_dihedral].get('fixed', False):  # the dihedral equi value will be calculated from the BI fit, because for dihedrals it makes no sense to use the average
             ns.cg_itp['dihedral'][grp_dihedral]['value'] = dihedral_avg
         ns.cg_itp['dihedral'][grp_dihedral]['avg'] = dihedral_avg
         ns.cg_itp['dihedral'][grp_dihedral]['hist'] = dihedral_hist
@@ -340,7 +345,9 @@ def run(ns):
         ns.data_BI['dihedral'].append([np.histogram(dihedral_values_rad, range=(np.deg2rad(xmin), np.deg2rad(xmax)), bins=2 *config.bi_nb_bins)[0], np.std(dihedral_values_rad), np.mean(dihedral_values_rad), (xmin, xmax)])
 
         ns.domains_val['dihedral'].append([round(np.min(dihedral_values_deg), 2), round(np.max(dihedral_values_deg), 2)])  # boundaries of equilibrium values
-        print(f'  Dihedral grp {grp_dihedral+1} -- Average value: ' + str(round(dihedral_avg, 2)) + ' degrees -- Initial equilibrium value: '+str(round(ns.cg_itp['dihedral'][grp_dihedral]['value'], 2))+' degrees')
+        val = ns.cg_itp['dihedral'][grp_dihedral]['value']
+        val_str = '(mixed)' if isinstance(val, list) else str(round(val, 2)) + ' degrees'
+        print(f'  Dihedral grp {grp_dihedral+1} -- Average value: {round(dihedral_avg, 2)} degrees -- Initial equilibrium value: {val_str}')
 
     if not ns.bonds_rescaling_performed:
         print('  No bonds rescaling performed')

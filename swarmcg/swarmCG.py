@@ -511,8 +511,9 @@ def read_cg_itp_file(ns):
 				var_set = set(ns.cg_itp[geom][grp_geom][var])
 				if len(var_set) == 1:
 					ns.cg_itp[geom][grp_geom][var] = var_set.pop()
-				else:
+				elif not ns.cg_itp[geom][grp_geom].get('fixed', False):
 					raise exceptions.MissformattedFile(msg(geom, grp_geom))
+				# else: fixed group with non-uniform values — leave as list, written per-line
 
 	for geom in ['bond', 'angle']:  # bonds and angles only
 		for grp_geom in range(len(ns.cg_itp[geom])):
@@ -520,24 +521,19 @@ def read_cg_itp_file(ns):
 				var_set = set(ns.cg_itp[geom][grp_geom][var])
 				if len(var_set) == 1:
 					ns.cg_itp[geom][grp_geom][var] = var_set.pop()
-				else:
+				elif not ns.cg_itp[geom][grp_geom].get('fixed', False):
 					raise exceptions.MissformattedFile(msg(geom, grp_geom))
+				# else: fixed group with non-uniform values — leave as list, written per-line
 
 	for geom in ['dihedral']:  # dihedrals only
 		for grp_geom in range(len(ns.cg_itp[geom])):
-			for var in ['func', 'value', 'value_user', 'fct', 'fct_user']:
+			for var in ['func', 'value', 'value_user', 'fct', 'fct_user', 'mult']:
 				var_set = set(ns.cg_itp[geom][grp_geom][var])
 				if len(var_set) == 1:
 					ns.cg_itp[geom][grp_geom][var] = var_set.pop()
-				else:
+				elif not ns.cg_itp[geom][grp_geom].get('fixed', False):
 					raise exceptions.MissformattedFile(msg(geom, grp_geom))
-
-			for var in ['mult']:
-				var_set = set(ns.cg_itp[geom][grp_geom][var])
-				if len(var_set) == 1:
-					ns.cg_itp[geom][grp_geom][var] = var_set.pop()
-				else:
-					raise exceptions.MissformattedFile(msg(geom, grp_geom))
+				# else: fixed group with non-uniform values — leave as list, written per-line
 
 	# verify we have as many real CG beads (i.e. NOT virtual sites) in the ITP than in the mapping file
 	if len(ns.real_beads_ids) != len(ns.all_beads):
@@ -890,11 +886,14 @@ def write_cg_itp_file(itp_obj, out_path_itp, print_sections=['constraint', 'bond
 				constraint_type = itp_obj['constraint'][j]['geom_type']
 				fixed_tag = ' FIXED' if itp_obj['constraint'][j].get('fixed', False) else ''
 				fp.write('\n; constraint type '+constraint_type+fixed_tag+'\n')
-				grp_val = itp_obj['constraint'][j]['value']
 
 				for i in range(len(itp_obj['constraint'][j]['beads'])):
+					val_f = itp_obj['constraint'][j]['value']
+					grp_val = val_f[i] if isinstance(val_f, list) else val_f
+					func_f = itp_obj['constraint'][j]['func']
+					grp_func = func_f[i] if isinstance(func_f, list) else func_f
 					fp.write('{beads[0]:>5} {beads[1]:>5} {0:>7} {1:8.3f}      ; {2}\n'.format(
-						itp_obj['constraint'][j]['func'], grp_val, constraint_type,
+						grp_func, grp_val, constraint_type,
 						beads=[bead_id+1 for bead_id in itp_obj['constraint'][j]['beads'][i]]))
 
 		if 'bond' in print_sections and 'bond' in itp_obj and len(itp_obj['bond']) > 0:
@@ -906,11 +905,13 @@ def write_cg_itp_file(itp_obj, out_path_itp, print_sections=['constraint', 'bond
 				bond_type = itp_obj['bond'][j]['geom_type']
 				fixed_tag = ' FIXED' if itp_obj['bond'][j].get('fixed', False) else ''
 				fp.write('\n; bond type '+bond_type+fixed_tag+'\n')
-				grp_val, grp_fct = itp_obj['bond'][j]['value'], itp_obj['bond'][j]['fct']
 
 				for i in range(len(itp_obj['bond'][j]['beads'])):
+					val_f = itp_obj['bond'][j]['value_user']; grp_val = val_f[i] if isinstance(val_f, list) else itp_obj['bond'][j]['value']
+					fct_f = itp_obj['bond'][j]['fct_user'];   grp_fct = fct_f[i] if isinstance(fct_f, list) else itp_obj['bond'][j]['fct']
+					func_f = itp_obj['bond'][j]['func'];      grp_func = func_f[i] if isinstance(func_f, list) else func_f
 					fp.write('{beads[0]:>5} {beads[1]:>5} {0:>7} {1:8.3f}  {2:7.2f}           ; {3}\n'.format(
-						itp_obj['bond'][j]['func'], grp_val, grp_fct, bond_type,
+						grp_func, grp_val, grp_fct, bond_type,
 						beads=[bead_id+1 for bead_id in itp_obj['bond'][j]['beads'][i]]))
 
 		if 'angle' in print_sections and 'angle' in itp_obj and len(itp_obj['angle']) > 0:
@@ -922,11 +923,13 @@ def write_cg_itp_file(itp_obj, out_path_itp, print_sections=['constraint', 'bond
 				angle_type = itp_obj['angle'][j]['geom_type']
 				fixed_tag = ' FIXED' if itp_obj['angle'][j].get('fixed', False) else ''
 				fp.write('\n; angle type '+angle_type+fixed_tag+'\n')
-				grp_val, grp_fct = itp_obj['angle'][j]['value'], itp_obj['angle'][j]['fct']
 
 				for i in range(len(itp_obj['angle'][j]['beads'])):
+					val_f = itp_obj['angle'][j]['value_user']; grp_val = val_f[i] if isinstance(val_f, list) else itp_obj['angle'][j]['value']
+					fct_f = itp_obj['angle'][j]['fct_user'];   grp_fct = fct_f[i] if isinstance(fct_f, list) else itp_obj['angle'][j]['fct']
+					func_f = itp_obj['angle'][j]['func'];      grp_func = func_f[i] if isinstance(func_f, list) else func_f
 					fp.write('{beads[0]:>5} {beads[1]:>5} {beads[2]:>5} {0:>7} {1:9.2f}   {2:7.2f}           ; {3}\n'.format(
-						itp_obj['angle'][j]['func'], grp_val, grp_fct, angle_type,
+						grp_func, grp_val, grp_fct, angle_type,
 						beads=[bead_id+1 for bead_id in itp_obj['angle'][j]['beads'][i]]))
 
 		if 'dihedral' in print_sections and 'dihedral' in itp_obj and len(itp_obj['dihedral']) > 0:
@@ -938,17 +941,20 @@ def write_cg_itp_file(itp_obj, out_path_itp, print_sections=['constraint', 'bond
 				dihedral_type = itp_obj['dihedral'][j]['geom_type']
 				fixed_tag = ' FIXED' if itp_obj['dihedral'][j].get('fixed', False) else ''
 				fp.write('\n; dihedral type '+dihedral_type+fixed_tag+'\n')
-				grp_val, grp_fct = itp_obj['dihedral'][j]['value'], itp_obj['dihedral'][j]['fct']
 
 				for i in range(len(itp_obj['dihedral'][j]['beads'])):
+					val_f = itp_obj['dihedral'][j]['value_user']; grp_val = val_f[i] if isinstance(val_f, list) else itp_obj['dihedral'][j]['value']
+					fct_f = itp_obj['dihedral'][j]['fct_user'];   grp_fct = fct_f[i] if isinstance(fct_f, list) else itp_obj['dihedral'][j]['fct']
+					func_f = itp_obj['dihedral'][j]['func'];      grp_func = func_f[i] if isinstance(func_f, list) else func_f
 
 					# handle writing of multiplicity
-					multiplicity = itp_obj['dihedral'][j]['mult']
-					if multiplicity == None:
+					mult_raw = itp_obj['dihedral'][j]['mult']
+					multiplicity = mult_raw[i] if isinstance(mult_raw, list) else mult_raw
+					if multiplicity is None:
 						multiplicity = ''
 
 					fp.write('{beads[0]:>5} {beads[1]:>5} {beads[2]:>5} {beads[3]:>5} {0:>7}    {1:9.2f} {2:7.2f}       {4}     ; {3}\n'.format(
-						itp_obj['dihedral'][j]['func'], grp_val, grp_fct, dihedral_type, multiplicity,
+						grp_func, grp_val, grp_fct, dihedral_type, multiplicity,
 						beads=[bead_id+1 for bead_id in itp_obj['dihedral'][j]['beads'][i]]))
 
 		# here starts 4 almost identical blocks, that differ only by vs_2, vs_3, vs_4, vs_n
