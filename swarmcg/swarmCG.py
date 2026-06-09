@@ -824,30 +824,34 @@ def update_cg_itp_obj(ns, parameters_set, update_type):
 		)
 		raise exceptions.InvalidArgument(msg)
 
-	for pso_i, itp_i in enumerate(ns.opti_constraint_ids):
-		if ns.exec_mode == 1:
-			itp_obj['constraint'][itp_i]['value'] = round(parameters_set[pso_i], 3)  # constraint - distance
+	if ns.opti_cycle['nb_geoms']['constraint'] > 0:
+		for pso_i, itp_i in enumerate(ns.opti_constraint_ids):
+			if ns.exec_mode == 1:
+				itp_obj['constraint'][itp_i]['value'] = round(parameters_set[pso_i], 3)  # constraint - distance
 
-	for pso_i, itp_i in enumerate(ns.opti_bond_ids):
-		if ns.exec_mode == 1:
-			itp_obj['bond'][itp_i]['value'] = round(parameters_set[ns.opti_cycle['nb_geoms']['constraint'] + pso_i], 3)  # bond - distance
-			itp_obj['bond'][itp_i]['fct'] = round(parameters_set[ns.opti_cycle['nb_geoms']['constraint'] + ns.opti_cycle['nb_geoms']['bond'] + pso_i], 3)  # bond - force constant
-		else:
-			itp_obj['bond'][itp_i]['fct'] = round(parameters_set[pso_i], 3)  # bond - force constant
+	if ns.opti_cycle['nb_geoms']['bond'] > 0:
+		for pso_i, itp_i in enumerate(ns.opti_bond_ids):
+			if ns.exec_mode == 1:
+				itp_obj['bond'][itp_i]['value'] = round(parameters_set[ns.opti_cycle['nb_geoms']['constraint'] + pso_i], 3)  # bond - distance
+				itp_obj['bond'][itp_i]['fct'] = round(parameters_set[ns.opti_cycle['nb_geoms']['constraint'] + ns.opti_cycle['nb_geoms']['bond'] + pso_i], 3)  # bond - force constant
+			else:
+				itp_obj['bond'][itp_i]['fct'] = round(parameters_set[pso_i], 3)  # bond - force constant
 
-	for pso_i, itp_i in enumerate(ns.opti_angle_ids):
-		if ns.exec_mode == 1:
-			itp_obj['angle'][itp_i]['value'] = round(parameters_set[ns.opti_cycle['nb_geoms']['constraint'] + 2 * ns.opti_cycle['nb_geoms']['bond'] + pso_i], 2)  # angle - value
-			itp_obj['angle'][itp_i]['fct'] = round(parameters_set[ns.opti_cycle['nb_geoms']['constraint'] + 2 * ns.opti_cycle['nb_geoms']['bond'] + ns.opti_cycle['nb_geoms']['angle'] + pso_i], 2)  # angle - force constant
-		else:
-			itp_obj['angle'][itp_i]['fct'] = round(parameters_set[ns.opti_cycle['nb_geoms']['bond'] + pso_i], 2)  # angle - force constant
+	if ns.opti_cycle['nb_geoms']['angle'] > 0:
+		for pso_i, itp_i in enumerate(ns.opti_angle_ids):
+			if ns.exec_mode == 1:
+				itp_obj['angle'][itp_i]['value'] = round(parameters_set[ns.opti_cycle['nb_geoms']['constraint'] + 2 * ns.opti_cycle['nb_geoms']['bond'] + pso_i], 2)  # angle - value
+				itp_obj['angle'][itp_i]['fct'] = round(parameters_set[ns.opti_cycle['nb_geoms']['constraint'] + 2 * ns.opti_cycle['nb_geoms']['bond'] + ns.opti_cycle['nb_geoms']['angle'] + pso_i], 2)  # angle - force constant
+			else:
+				itp_obj['angle'][itp_i]['fct'] = round(parameters_set[ns.opti_cycle['nb_geoms']['bond'] + pso_i], 2)  # angle - force constant
 
-	for pso_i, itp_i in enumerate(ns.opti_dihedral_ids):
-		if ns.exec_mode == 1:
-			itp_obj['dihedral'][itp_i]['value'] = round(parameters_set[ns.opti_cycle['nb_geoms']['constraint'] + 2 * ns.opti_cycle['nb_geoms']['bond'] + 2 * ns.opti_cycle['nb_geoms']['angle'] + pso_i], 2)  # dihedral - value
-			itp_obj['dihedral'][itp_i]['fct'] = round(parameters_set[ns.opti_cycle['nb_geoms']['constraint'] + 2 * ns.opti_cycle['nb_geoms']['bond'] + 2 * ns.opti_cycle['nb_geoms']['angle'] + ns.opti_cycle['nb_geoms']['dihedral'] + pso_i], 2)  # dihedral - force constant
-		else:
-			itp_obj['dihedral'][itp_i]['fct'] = round(parameters_set[ns.opti_cycle['nb_geoms']['bond'] + ns.opti_cycle['nb_geoms']['angle'] + pso_i], 2)  # dihedral - force constant
+	if ns.opti_cycle['nb_geoms']['dihedral'] > 0:
+		for pso_i, itp_i in enumerate(ns.opti_dihedral_ids):
+			if ns.exec_mode == 1:
+				itp_obj['dihedral'][itp_i]['value'] = round(parameters_set[ns.opti_cycle['nb_geoms']['constraint'] + 2 * ns.opti_cycle['nb_geoms']['bond'] + 2 * ns.opti_cycle['nb_geoms']['angle'] + pso_i], 2)  # dihedral - value
+				itp_obj['dihedral'][itp_i]['fct'] = round(parameters_set[ns.opti_cycle['nb_geoms']['constraint'] + 2 * ns.opti_cycle['nb_geoms']['bond'] + 2 * ns.opti_cycle['nb_geoms']['angle'] + ns.opti_cycle['nb_geoms']['dihedral'] + pso_i], 2)  # dihedral - force constant
+			else:
+				itp_obj['dihedral'][itp_i]['fct'] = round(parameters_set[ns.opti_cycle['nb_geoms']['bond'] + ns.opti_cycle['nb_geoms']['angle'] + pso_i], 2)  # dihedral - force constant
 
 
 # print coarse-grain ITP
