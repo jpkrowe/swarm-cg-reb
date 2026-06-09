@@ -1475,15 +1475,16 @@ def create_bins_and_dist_matrices(ns, constraints=True):
 	ns.bins_dihedrals = np.arange(-180, 180+2*ns.bw_dihedrals, ns.bw_dihedrals)
 
 	# bins distance for Earth Mover's Distance (EMD) to calculate histograms similarity
+	# Use bin centres (N-1 values) so dist matrix shape matches histogram length.
 	if constraints:
-		bins_constraints_reshape = np.array(ns.bins_constraints).reshape(-1,1)
-		ns.bins_constraints_dist_matrix = cdist(bins_constraints_reshape, bins_constraints_reshape)
-	bins_bonds_reshape = np.array(ns.bins_bonds).reshape(-1,1)
-	ns.bins_bonds_dist_matrix = cdist(bins_bonds_reshape, bins_bonds_reshape)
-	bins_angles_reshape = np.array(ns.bins_angles).reshape(-1,1)
-	ns.bins_angles_dist_matrix = cdist(bins_angles_reshape, bins_angles_reshape)
-	bins_dihedrals_reshape = np.array(ns.bins_dihedrals).reshape(-1,1)
-	bins_dihedrals_dist_matrix = cdist(bins_dihedrals_reshape, bins_dihedrals_reshape)  # 'classical' distance matrix
+		bins_constraints_centers = ((ns.bins_constraints[:-1] + ns.bins_constraints[1:]) / 2).reshape(-1, 1)
+		ns.bins_constraints_dist_matrix = cdist(bins_constraints_centers, bins_constraints_centers)
+	bins_bonds_centers = ((ns.bins_bonds[:-1] + ns.bins_bonds[1:]) / 2).reshape(-1, 1)
+	ns.bins_bonds_dist_matrix = cdist(bins_bonds_centers, bins_bonds_centers)
+	bins_angles_centers = ((ns.bins_angles[:-1] + ns.bins_angles[1:]) / 2).reshape(-1, 1)
+	ns.bins_angles_dist_matrix = cdist(bins_angles_centers, bins_angles_centers)
+	bins_dihedrals_centers = ((ns.bins_dihedrals[:-1] + ns.bins_dihedrals[1:]) / 2).reshape(-1, 1)
+	bins_dihedrals_dist_matrix = cdist(bins_dihedrals_centers, bins_dihedrals_centers)  # 'classical' distance matrix
 	ns.bins_dihedrals_dist_matrix = np.where(bins_dihedrals_dist_matrix > max(bins_dihedrals_dist_matrix[0])/2, max(bins_dihedrals_dist_matrix[0])-bins_dihedrals_dist_matrix, bins_dihedrals_dist_matrix) # periodic distance matrix
 
 
@@ -2040,7 +2041,10 @@ def compare_models(ns, manual_mode=True, ignore_dihedrals=False, calc_sasa=False
 
 				domain_min = min(constraints[grp_constraint]['AA']['x'][0], constraints[grp_constraint]['CG']['x'][0])
 				domain_max = max(constraints[grp_constraint]['AA']['x'][-1], constraints[grp_constraint]['CG']['x'][-1])
-				avg_diff_grp_constraints.append(emd(constraints[grp_constraint]['AA']['hist'], constraints[grp_constraint]['CG']['hist'], ns.bins_constraints_dist_matrix) * ns.bonds2angles_scoring_factor)
+				if ns.cg_itp['constraint'][grp_constraint].get('fixed', False):
+					avg_diff_grp_constraints.append(0.0)
+				else:
+					avg_diff_grp_constraints.append(emd(constraints[grp_constraint]['AA']['hist'], constraints[grp_constraint]['CG']['hist'], ns.bins_constraints_dist_matrix) * ns.bonds2angles_scoring_factor)
 			except IndexError:
 				msg = (
 					f"Most probably because you have bonds or constraints that "
@@ -2099,7 +2103,10 @@ def compare_models(ns, manual_mode=True, ignore_dihedrals=False, calc_sasa=False
 
 				domain_min = min(bonds[grp_bond]['AA']['x'][0], bonds[grp_bond]['CG']['x'][0])
 				domain_max = max(bonds[grp_bond]['AA']['x'][-1], bonds[grp_bond]['CG']['x'][-1])
-				avg_diff_grp_bonds.append(emd(bonds[grp_bond]['AA']['hist'], bonds[grp_bond]['CG']['hist'], ns.bins_bonds_dist_matrix) * ns.bonds2angles_scoring_factor)
+				if ns.cg_itp['bond'][grp_bond].get('fixed', False):
+					avg_diff_grp_bonds.append(0.0)
+				else:
+					avg_diff_grp_bonds.append(emd(bonds[grp_bond]['AA']['hist'], bonds[grp_bond]['CG']['hist'], ns.bins_bonds_dist_matrix) * ns.bonds2angles_scoring_factor)
 			except IndexError:
 				msg = (
 					f"Most probably because you have bonds or constraints that "
@@ -2157,7 +2164,10 @@ def compare_models(ns, manual_mode=True, ignore_dihedrals=False, calc_sasa=False
 
 			domain_min = min(angles[grp_angle]['AA']['x'][0], angles[grp_angle]['CG']['x'][0])
 			domain_max = max(angles[grp_angle]['AA']['x'][-1], angles[grp_angle]['CG']['x'][-1])
-			avg_diff_grp_angles.append(emd(angles[grp_angle]['AA']['hist'], angles[grp_angle]['CG']['hist'], ns.bins_angles_dist_matrix))
+			if ns.cg_itp['angle'][grp_angle].get('fixed', False):
+				avg_diff_grp_angles.append(0.0)
+			else:
+				avg_diff_grp_angles.append(emd(angles[grp_angle]['AA']['hist'], angles[grp_angle]['CG']['hist'], ns.bins_angles_dist_matrix))
 		else:
 			avg_diff_grp_angles.append(angles[grp_angle]['AA']['avg'])
 
@@ -2208,7 +2218,10 @@ def compare_models(ns, manual_mode=True, ignore_dihedrals=False, calc_sasa=False
 
 			domain_min = min(dihedrals[grp_dihedral]['AA']['x'][0], dihedrals[grp_dihedral]['CG']['x'][0])
 			domain_max = max(dihedrals[grp_dihedral]['AA']['x'][-1], dihedrals[grp_dihedral]['CG']['x'][-1])
-			avg_diff_grp_dihedrals.append(emd(dihedrals[grp_dihedral]['AA']['hist'], dihedrals[grp_dihedral]['CG']['hist'], ns.bins_dihedrals_dist_matrix))
+			if ns.cg_itp['dihedral'][grp_dihedral].get('fixed', False):
+				avg_diff_grp_dihedrals.append(0.0)
+			else:
+				avg_diff_grp_dihedrals.append(emd(dihedrals[grp_dihedral]['AA']['hist'], dihedrals[grp_dihedral]['CG']['hist'], ns.bins_dihedrals_dist_matrix))
 		else:
 			avg_diff_grp_dihedrals.append(dihedrals[grp_dihedral]['AA']['avg'])
 
