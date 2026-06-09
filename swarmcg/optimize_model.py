@@ -664,6 +664,15 @@ def main():
     optional_args1.add_argument('-mini_maxwarn', dest='mini_maxwarn',
                               help='Max. number of warnings to ignore, forwarded to gmx\ngrompp -maxwarn at each minimization step',
                               type=int, default=1, metavar='           (1)')
+    optional_args1.add_argument('-mini_grompp', dest='mini_grompp_args',
+                              help='String (use quotes) of extra arguments forwarded to gmx\ngrompp at the minimization step, e.g. \'-r restraint.gro\'',
+                              type=str, default='', metavar='')
+    optional_args1.add_argument('-equi_grompp', dest='equi_grompp_args',
+                              help='String (use quotes) of extra arguments forwarded to gmx\ngrompp at the equilibration step',
+                              type=str, default='', metavar='')
+    optional_args1.add_argument('-md_grompp', dest='md_grompp_args',
+                              help='String (use quotes) of extra arguments forwarded to gmx\ngrompp at the production MD step',
+                              type=str, default='', metavar='')
     optional_args1.add_argument('-sim_kill_delay', dest='sim_kill_delay',
                               help='Time (s) after which to kill a simulation that has not been\nwriting into its log file, in case a simulation gets stuck',
                               type=int, default=60, metavar='        (60)')

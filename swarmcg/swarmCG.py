@@ -2746,7 +2746,7 @@ def eval_function(parameters_set, ns):
 	# 	ns.gro_input_basename = previous_best_final_conf
 
 	# grompp -- minimization
-	gmx_cmd = f'{ns.gmx_path} grompp -c {ns.gro_input_basename} -p {ns.top_input_basename} -f {ns.mdp_minimization_basename} -o mini -maxwarn {ns.mini_maxwarn}'
+	gmx_cmd = f'{ns.gmx_path} grompp -c {ns.gro_input_basename} -p {ns.top_input_basename} -f {ns.mdp_minimization_basename} -o mini -maxwarn {ns.mini_maxwarn} {ns.mini_grompp_args}'.strip()
 	with subprocess.Popen([gmx_cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as gmx_process:
 		gmx_out = gmx_process.communicate()[1].decode()
 		gmx_process.kill()
@@ -2789,7 +2789,7 @@ def eval_function(parameters_set, ns):
 	if os.path.isfile('mini.gro'):
 
 		# grompp -- EQUI
-		gmx_cmd = ns.gmx_path+' grompp -c mini.gro -p '+ns.top_input_basename+' -f '+ns.mdp_equi_basename+' -o equi'
+		gmx_cmd = (ns.gmx_path+' grompp -c mini.gro -p '+ns.top_input_basename+' -f '+ns.mdp_equi_basename+' -o equi '+ns.equi_grompp_args).strip()
 		with subprocess.Popen([gmx_cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as gmx_process:
 			gmx_out = gmx_process.communicate()[1].decode()
 			gmx_process.kill()
@@ -2835,7 +2835,7 @@ def eval_function(parameters_set, ns):
 			modify_mdp(mdp_filename=ns.mdp_md_basename, sim_time=ns.prod_sim_time)
 
 			# grompp -- MD
-			gmx_cmd = ns.gmx_path+' grompp -c equi.gro -p '+ns.top_input_basename+' -f '+ns.mdp_md_basename+' -o md'
+			gmx_cmd = (ns.gmx_path+' grompp -c equi.gro -p '+ns.top_input_basename+' -f '+ns.mdp_md_basename+' -o md '+ns.md_grompp_args).strip()
 			with subprocess.Popen([gmx_cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as gmx_process:
 				gmx_out = gmx_process.communicate()[1].decode()
 				gmx_process.kill()
