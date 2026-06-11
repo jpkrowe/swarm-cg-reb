@@ -155,9 +155,9 @@ def run(ns):
                 top_includes_filenames.append(arg_dirname + '/' + top_include)
 
     # check gmx arguments conflicts
-    if ns.gmx_args_str != '' and (ns.nb_threads != 0 or ns.gpu_id != ''):
+    if (ns.gmx_args_str != '' or ns.mini_mdrun_args != '' or ns.equi_mdrun_args != '' or ns.md_mdrun_args != '') and (ns.nb_threads != 0 or ns.gpu_id != ''):
         print(
-            swarmcg.shared.styling.header_warning + 'Argument -gmx_args_str is provided together with one of arguments: -nb_threads, -gpu_id\nOnly argument -gmx_args_str will be used during this execution')
+            swarmcg.shared.styling.header_warning + 'One or more of -gmx_args_str, -mini_mdrun_args, -equi_mdrun_args, -md_mdrun_args is provided together with one of arguments: -nb_threads, -gpu_id\nArguments -nb_threads and -gpu_id will be ignored during this execution')
 
     # check bonds scaling arguments conflicts
     if (ns.bonds_scaling != config.bonds_scaling and ns.min_bonds_length != config.min_bonds_length) or (ns.bonds_scaling != config.bonds_scaling and ns.bonds_scaling_str != config.bonds_scaling_str) or (ns.min_bonds_length != config.min_bonds_length and ns.bonds_scaling_str != config.bonds_scaling_str):
@@ -659,7 +659,16 @@ def main():
                               help='String (use quotes) space-separated list of GPU device IDs',
                               type=str, default='', metavar='')
     optional_args1.add_argument('-gmx_args_str', dest='gmx_args_str',
-                              help='String (use quotes) of arguments to forward to gmx mdrun\nIf provided, arguments -nt and -gpu_id are ignored',
+                              help='String (use quotes) of arguments to forward to gmx mdrun at\nall stages; concatenated with any per-stage flag if also set.\nIf provided (alone), arguments -nt and -gpu_id are ignored',
+                              type=str, default='', metavar='')
+    optional_args1.add_argument('-mini_mdrun_args', dest='mini_mdrun_args',
+                              help='String (use quotes) of extra arguments forwarded to gmx mdrun\nat the minimization step, concatenated with -gmx_args_str',
+                              type=str, default='', metavar='')
+    optional_args1.add_argument('-equi_mdrun_args', dest='equi_mdrun_args',
+                              help='String (use quotes) of extra arguments forwarded to gmx mdrun\nat the equilibration step, concatenated with -gmx_args_str',
+                              type=str, default='', metavar='')
+    optional_args1.add_argument('-md_mdrun_args', dest='md_mdrun_args',
+                              help='String (use quotes) of extra arguments forwarded to gmx mdrun\nat the production MD step, concatenated with -gmx_args_str',
                               type=str, default='', metavar='')
     optional_args1.add_argument('-mini_maxwarn', dest='mini_maxwarn',
                               help='Max. number of warnings to ignore, forwarded to gmx\ngrompp -maxwarn at each minimization step',

@@ -1448,11 +1448,12 @@ def make_aa_traj_whole_for_selected_mols(ns):
 
 
 # build gromacs command with arguments
-def gmx_args(ns, gmx_cmd, mpi=True):
+def gmx_args(ns, gmx_cmd, mpi=True, stage_args=''):
 
 	gmx_cmd = f"{ns.gmx_path} {gmx_cmd}"
-	if ns.gmx_args_str != '':
-		gmx_cmd = f"{gmx_cmd} {ns.gmx_args_str}"
+	combined = ' '.join(filter(None, [ns.gmx_args_str, stage_args]))
+	if combined:
+		gmx_cmd = f"{gmx_cmd} {combined}"
 	else:
 		if ns.nb_threads > 0:
 			gmx_cmd = f"{gmx_cmd} -nt {ns.nb_threads}"
@@ -2766,7 +2767,7 @@ def eval_function(parameters_set, ns):
 
 	if gmx_process.returncode == 0:
 		# mdrun -- minimization
-		gmx_cmd = gmx_args(ns, 'mdrun -deffnm mini', mpi=False)
+		gmx_cmd = gmx_args(ns, 'mdrun -deffnm mini', mpi=False, stage_args=ns.mini_mdrun_args)
 		with subprocess.Popen([gmx_cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid) as gmx_process:  # create a process group for the minimization run
 
 			# check if minimization run is stuck because of instabilities
@@ -2809,7 +2810,7 @@ def eval_function(parameters_set, ns):
 
 		if gmx_process.returncode == 0:
 			# mdrun -- EQUI
-			gmx_cmd = gmx_args(ns, 'mdrun -deffnm equi')
+			gmx_cmd = gmx_args(ns, 'mdrun -deffnm equi', stage_args=ns.equi_mdrun_args)
 			with subprocess.Popen([gmx_cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid) as gmx_process:  # create a process group for the EQUI run
 
 				# check if EQUI run is stuck because of instabilities
@@ -2855,7 +2856,7 @@ def eval_function(parameters_set, ns):
 
 			if gmx_process.returncode == 0:
 				# mdrun -- MD
-				gmx_cmd = gmx_args(ns, 'mdrun -deffnm md')
+				gmx_cmd = gmx_args(ns, 'mdrun -deffnm md', stage_args=ns.md_mdrun_args)
 				with subprocess.Popen([gmx_cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid) as gmx_process:  # create a process group for the MD run
 
 					# check if MD run is stuck because of instabilities
