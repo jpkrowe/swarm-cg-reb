@@ -1755,8 +1755,8 @@ def perform_BI(ns):
 				ns.out_itp['bond'][grp_bond]['fct'] = popt[0]*100
 
 				# stay within limits in case user requires low force constants
-				if not 0 <= ns.out_itp['bond'][grp_bond]['fct'] <= min(config.default_max_fct_bonds_bi, ns.default_max_fct_bonds_opti):
-					ns.out_itp['bond'][grp_bond]['fct'] = min(config.default_max_fct_bonds_bi, ns.default_max_fct_bonds_opti) / 2
+				if not 0 <= ns.out_itp['bond'][grp_bond]['fct'] <= min(ns.default_max_fct_bonds_bi, ns.default_max_fct_bonds_opti):
+					ns.out_itp['bond'][grp_bond]['fct'] = min(ns.default_max_fct_bonds_bi, ns.default_max_fct_bonds_opti) / 2
 
 				if ns.verbose:
 					print('  Bond group', grp_bond+1, 'estimated force constant:', round(ns.out_itp['bond'][grp_bond]['fct'], 2))

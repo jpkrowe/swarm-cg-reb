@@ -84,6 +84,9 @@ def run(ns):
         raise exceptions.InputArgumentError(msg)
 
     # check that force constants limits make sense
+    if ns.default_max_fct_bonds_bi <= 0:
+        msg = f"Please provide a value > 0 for argument -max_fct_bonds_bi."
+        raise exceptions.InputArgumentError(msg)
     if ns.default_max_fct_bonds_opti <= 0:
         msg = f"Please provide a value > 0 for argument -max_fct_bonds_f1."
         raise exceptions.InputArgumentError(msg)
@@ -687,6 +690,10 @@ def main():
                               type=int, default=60, metavar='        (60)')
 
     optional_args6 = args_parser.add_argument_group(bullet + 'CG MODEL FORCE CONSTANTS')
+    optional_args6.add_argument('-max_fct_bonds_bi', dest='default_max_fct_bonds_bi',
+                              help=config.help_max_fct_bonds_bi, type=float,
+                              default=config.default_max_fct_bonds_bi,
+                              metavar='    ' + scg.par_wrap(config.default_max_fct_bonds_bi))
     optional_args6.add_argument('-max_fct_bonds_f1', dest='default_max_fct_bonds_opti',
                               help=config.help_max_fct_bonds, type=float,
                               default=config.default_max_fct_bonds_opti,
