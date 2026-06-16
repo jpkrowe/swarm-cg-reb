@@ -1868,10 +1868,10 @@ def perform_BI(ns):
 
 				# stay within limits in case user requires low force constants
 				if func in config.dihedral_func_with_mult:
-					if not max(-ns.default_abs_range_fct_dihedrals_bi_func_with_mult, -ns.default_abs_range_fct_dihedrals_opti_func_with_mult) <= ns.out_itp['dihedral'][grp_dihedral]['fct'] <= min(-ns.default_abs_range_fct_dihedrals_bi_func_with_mult, -ns.default_abs_range_fct_dihedrals_opti_func_with_mult):
+					if not max(-ns.default_abs_range_fct_dihedrals_bi_func_with_mult, -ns.default_abs_range_fct_dihedrals_opti_func_with_mult) <= ns.out_itp['dihedral'][grp_dihedral]['fct'] <= min(ns.default_abs_range_fct_dihedrals_bi_func_with_mult, ns.default_abs_range_fct_dihedrals_opti_func_with_mult):
 						ns.out_itp['dihedral'][grp_dihedral]['fct'] = np.sign(ns.out_itp['dihedral'][grp_dihedral]['fct']) * min(ns.default_abs_range_fct_dihedrals_bi_func_with_mult, ns.default_abs_range_fct_dihedrals_opti_func_with_mult) / 2
 				else:
-					if not max(-ns.default_abs_range_fct_dihedrals_bi_func_without_mult, -ns.default_abs_range_fct_dihedrals_opti_func_without_mult) <= ns.out_itp['dihedral'][grp_dihedral]['fct'] <= min(-ns.default_abs_range_fct_dihedrals_bi_func_without_mult, -ns.default_abs_range_fct_dihedrals_opti_func_without_mult):
+					if not max(-ns.default_abs_range_fct_dihedrals_bi_func_without_mult, -ns.default_abs_range_fct_dihedrals_opti_func_without_mult) <= ns.out_itp['dihedral'][grp_dihedral]['fct'] <= min(ns.default_abs_range_fct_dihedrals_bi_func_without_mult, ns.default_abs_range_fct_dihedrals_opti_func_without_mult):
 						ns.out_itp['dihedral'][grp_dihedral]['fct'] = np.sign(ns.out_itp['dihedral'][grp_dihedral]['fct']) * min(ns.default_abs_range_fct_dihedrals_bi_func_without_mult, ns.default_abs_range_fct_dihedrals_opti_func_without_mult) / 2
 
 				if ns.verbose:
