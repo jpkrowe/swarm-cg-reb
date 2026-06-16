@@ -1791,7 +1791,7 @@ def perform_BI(ns):
 					try:
 						popt, pcov = curve_fit(gmx_angles_func_2, x, y, p0=params_guess, sigma=sigma, maxfev=99999, absolute_sigma=False)
 						if popt[0] < 0:  # correct the negative force constant that can result from the fit of stiff angles at values close to 180
-							popt[0] = config.default_max_fct_angles_bi * 0.8 # stiff is most probably max fct value, so get close to it
+							popt[0] = ns.default_max_fct_angles_bi * 0.8 # stiff is most probably max fct value, so get close to it
 						elif bi_xrange[1] == 180 - ns.bw_angles/2:
 							popt[0] += 10
 					except RuntimeError:  # curve fit did not converge
@@ -1801,7 +1801,7 @@ def perform_BI(ns):
 					try:
 						popt, pcov = curve_fit(gmx_angles_func_10, x, y, p0=params_guess, sigma=sigma, maxfev=99999, absolute_sigma=False)
 						if popt[0] < 0:  # correct the negative force constant that can result from the fit of stiff angles at values close to 180
-							popt[0] = config.default_max_fct_angles_bi * 0.8 # stiff is most probably max fct value, so get close to it
+							popt[0] = ns.default_max_fct_angles_bi * 0.8 # stiff is most probably max fct value, so get close to it
 						elif bi_xrange[1] == 180 - ns.bw_angles/2:
 							popt[0] += 10
 					except RuntimeError:  # curve fit did not converge
@@ -1812,14 +1812,14 @@ def perform_BI(ns):
 
 				# stay within limits in case user requires low force constants
 				if func == 1:
-					if not 0 <= ns.out_itp['angle'][grp_angle]['fct'] <= min(config.default_max_fct_angles_bi, ns.default_max_fct_angles_opti_f1):
-						ns.out_itp['angle'][grp_angle]['fct'] = min(config.default_max_fct_angles_bi, ns.default_max_fct_angles_opti_f1) / 2
+					if not 0 <= ns.out_itp['angle'][grp_angle]['fct'] <= min(ns.default_max_fct_angles_bi, ns.default_max_fct_angles_opti_f1):
+						ns.out_itp['angle'][grp_angle]['fct'] = min(ns.default_max_fct_angles_bi, ns.default_max_fct_angles_opti_f1) / 2
 				elif func == 2:
-					if not 0 <= ns.out_itp['angle'][grp_angle]['fct'] <= min(config.default_max_fct_angles_bi, ns.default_max_fct_angles_opti_f2):
-						ns.out_itp['angle'][grp_angle]['fct'] = min(config.default_max_fct_angles_bi, ns.default_max_fct_angles_opti_f2) / 2
+					if not 0 <= ns.out_itp['angle'][grp_angle]['fct'] <= min(ns.default_max_fct_angles_bi, ns.default_max_fct_angles_opti_f2):
+						ns.out_itp['angle'][grp_angle]['fct'] = min(ns.default_max_fct_angles_bi, ns.default_max_fct_angles_opti_f2) / 2
 				elif func == 10:
-					if not 0 <= ns.out_itp['angle'][grp_angle]['fct'] <= min(config.default_max_fct_angles_bi, ns.default_max_fct_angles_opti_f2):
-						ns.out_itp['angle'][grp_angle]['fct'] = min(config.default_max_fct_angles_bi, ns.default_max_fct_angles_opti_f2) / 2
+					if not 0 <= ns.out_itp['angle'][grp_angle]['fct'] <= min(ns.default_max_fct_angles_bi, ns.default_max_fct_angles_opti_f2):
+						ns.out_itp['angle'][grp_angle]['fct'] = min(ns.default_max_fct_angles_bi, ns.default_max_fct_angles_opti_f2) / 2
 
 				if ns.verbose:
 					print('  Angle group', grp_angle+1, 'estimated force constant:', round(ns.out_itp['angle'][grp_angle]['fct'], 2))
@@ -1868,11 +1868,11 @@ def perform_BI(ns):
 
 				# stay within limits in case user requires low force constants
 				if func in config.dihedral_func_with_mult:
-					if not max(-config.default_abs_range_fct_dihedrals_bi_func_with_mult, -ns.default_abs_range_fct_dihedrals_opti_func_with_mult) <= ns.out_itp['dihedral'][grp_dihedral]['fct'] <= min(-config.default_abs_range_fct_dihedrals_bi_func_with_mult, -ns.default_abs_range_fct_dihedrals_opti_func_with_mult):
-						ns.out_itp['dihedral'][grp_dihedral]['fct'] = np.sign(ns.out_itp['dihedral'][grp_dihedral]['fct']) * min(config.default_abs_range_fct_dihedrals_bi_func_with_mult, ns.default_abs_range_fct_dihedrals_opti_func_with_mult) / 2
+					if not max(-ns.default_abs_range_fct_dihedrals_bi_func_with_mult, -ns.default_abs_range_fct_dihedrals_opti_func_with_mult) <= ns.out_itp['dihedral'][grp_dihedral]['fct'] <= min(-ns.default_abs_range_fct_dihedrals_bi_func_with_mult, -ns.default_abs_range_fct_dihedrals_opti_func_with_mult):
+						ns.out_itp['dihedral'][grp_dihedral]['fct'] = np.sign(ns.out_itp['dihedral'][grp_dihedral]['fct']) * min(ns.default_abs_range_fct_dihedrals_bi_func_with_mult, ns.default_abs_range_fct_dihedrals_opti_func_with_mult) / 2
 				else:
-					if not max(-config.default_abs_range_fct_dihedrals_bi_func_without_mult, -ns.default_abs_range_fct_dihedrals_opti_func_without_mult) <= ns.out_itp['dihedral'][grp_dihedral]['fct'] <= min(-config.default_abs_range_fct_dihedrals_bi_func_without_mult, -ns.default_abs_range_fct_dihedrals_opti_func_without_mult):
-						ns.out_itp['dihedral'][grp_dihedral]['fct'] = np.sign(ns.out_itp['dihedral'][grp_dihedral]['fct']) * min(config.default_abs_range_fct_dihedrals_bi_func_without_mult, ns.default_abs_range_fct_dihedrals_opti_func_without_mult) / 2
+					if not max(-ns.default_abs_range_fct_dihedrals_bi_func_without_mult, -ns.default_abs_range_fct_dihedrals_opti_func_without_mult) <= ns.out_itp['dihedral'][grp_dihedral]['fct'] <= min(-ns.default_abs_range_fct_dihedrals_bi_func_without_mult, -ns.default_abs_range_fct_dihedrals_opti_func_without_mult):
+						ns.out_itp['dihedral'][grp_dihedral]['fct'] = np.sign(ns.out_itp['dihedral'][grp_dihedral]['fct']) * min(ns.default_abs_range_fct_dihedrals_bi_func_without_mult, ns.default_abs_range_fct_dihedrals_opti_func_without_mult) / 2
 
 				if ns.verbose:
 					print('  Dihedral group', grp_dihedral+1, 'estimated force constant:', round(ns.out_itp['dihedral'][grp_dihedral]['fct'], 2))

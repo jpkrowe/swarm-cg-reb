@@ -90,11 +90,20 @@ def run(ns):
     if ns.default_max_fct_bonds_opti <= 0:
         msg = f"Please provide a value > 0 for argument -max_fct_bonds_f1."
         raise exceptions.InputArgumentError(msg)
+    if ns.default_max_fct_angles_bi <= 0:
+        msg = f"Please provide a value > 0 for argument -max_fct_angles_bi."
+        raise exceptions.InputArgumentError(msg)
     if ns.default_max_fct_angles_opti_f1 <= 0:
         msg = f"Please provide a value > 0 for argument -max_fct_angles_opti_f1."
         raise exceptions.InputArgumentError(msg)
     if ns.default_max_fct_angles_opti_f2 <= 0:
         msg = f"Please provide a value > 0 for argument -max_fct_angles_opti_f2."
+        raise exceptions.InputArgumentError(msg)
+    if ns.default_abs_range_fct_dihedrals_bi_func_with_mult <= 0:
+        msg = f"Please provide a value > 0 for argument -max_fct_dihedrals_bi_f149."
+        raise exceptions.InputArgumentError(msg)
+    if ns.default_abs_range_fct_dihedrals_bi_func_without_mult <= 0:
+        msg = f"Please provide a value > 0 for argument -max_fct_dihedrals_bi_f2."
         raise exceptions.InputArgumentError(msg)
 
     # check if we can find files at user-provided location(s)
@@ -698,6 +707,10 @@ def main():
                               help=config.help_max_fct_bonds, type=float,
                               default=config.default_max_fct_bonds_opti,
                               metavar='   ' + scg.par_wrap(config.default_max_fct_bonds_opti))
+    optional_args6.add_argument('-max_fct_angles_bi', dest='default_max_fct_angles_bi',
+                              help=config.help_max_fct_angles_bi, type=float,
+                              default=config.default_max_fct_angles_bi,
+                              metavar='   ' + scg.par_wrap(config.default_max_fct_angles_bi))
     optional_args6.add_argument('-max_fct_angles_f1', dest='default_max_fct_angles_opti_f1',
                               help=config.help_max_fct_angles_f1, type=float,
                               default=config.default_max_fct_angles_opti_f1,
@@ -706,6 +719,18 @@ def main():
                               help=config.help_max_fct_angles_f2, type=float,
                               default=config.default_max_fct_angles_opti_f2,
                               metavar='   ' + scg.par_wrap(config.default_max_fct_angles_opti_f2))
+    optional_args6.add_argument('-max_fct_dihedrals_bi_f149',
+                              dest='default_abs_range_fct_dihedrals_bi_func_with_mult',
+                              help=config.help_max_fct_dihedrals_bi_with_mult, type=float,
+                              default=config.default_abs_range_fct_dihedrals_bi_func_with_mult,
+                              metavar='' + scg.par_wrap(
+                                config.default_abs_range_fct_dihedrals_bi_func_with_mult))
+    optional_args6.add_argument('-max_fct_dihedrals_bi_f2',
+                              dest='default_abs_range_fct_dihedrals_bi_func_without_mult',
+                              help=config.help_max_fct_dihedrals_bi_without_mult, type=float,
+                              default=config.default_abs_range_fct_dihedrals_bi_func_without_mult,
+                              metavar='' + scg.par_wrap(
+                                config.default_abs_range_fct_dihedrals_bi_func_without_mult))
     optional_args6.add_argument('-max_fct_dihedrals_f149',
                               dest='default_abs_range_fct_dihedrals_opti_func_with_mult',
                               help=config.help_max_fct_dihedrals_with_mult, type=float,
